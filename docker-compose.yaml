@@ -1,0 +1,27 @@
+version: '3.7'
+
+services:
+  w.db:
+    build:
+      context: db
+      dockerfile: mysql.Dockerfile
+    command: --default-authentication-plugin=mysql_native_password --long_query_time=0.1 --slow_query_log=1 --log-short-format --slow_query_log_file=/var/log/mysql/query.log
+    ports:
+      - "3310:3306"
+
+  w.test:
+    depends_on:
+      - w.db
+    build:
+      context: app
+      dockerfile: server.Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+      - "1080:1080"
+    command: >
+      bash -c "nginx && mailcatcher --http-ip 0.0.0.0 && php-fpm"
+    volumes:
+      - "./WordPress:/usr/src/public_html/wordpress"
+      - "./plugins:/usr/src/public_html/wp-content/plugins"
+      - "./themes:/usr/src/public_html/wp-content/themes"
