@@ -57,23 +57,14 @@ RUN { \
 
 RUN apt-get update
 
-# Install and configure nginx
+# Install nginx.
 RUN apt-get install nginx -y
-COPY nginx.conf /etc/nginx/sites-enabled/woo.conf
-COPY php-fpm.conf /usr/local/etc/php-fpm.d/zz-www.conf
-
-# Install and configure SSL
-COPY woo.ssl.conf /var/woo.ssl.conf
-RUN cd ~ && openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout woo.key -out woo.crt -config /var/woo.ssl.conf
-RUN cp ~/woo.crt /etc/ssl/certs/woo.crt
-RUN cp ~/woo.key /etc/ssl/private/woo.key
 
 # Install WP-CLI
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 RUN chmod +x wp-cli.phar
 RUN mv wp-cli.phar /usr/local/bin/wp
 RUN apt-get install less -y
-COPY wp-cli.yml /usr/src/public_html/wp-cli.yml
 
 ## Install MailCatcher.
 RUN echo 'deb http://ftp.us.debian.org/debian buster main\n' >> /etc/apt/sources.list
@@ -82,7 +73,6 @@ RUN cat /etc/apt/sources.list
 RUN apt-get install unzip -y
 RUN apt-get install unzip build-essential libsqlite3-dev ruby-dev -y --fix-missing
 RUN gem install mailcatcher --no-ri --no-rdoc
-COPY smtp.conf /etc/msmtprc
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -yq install msmtp
 RUN sed -i -e "s|;sendmail_path =|sendmail_path = /usr/bin/msmtp -C /etc/msmtprc -t |" /usr/local/etc/php/php.ini-development
 RUN sed -i -e "s/smtp_port = 25/smtp_port = 1025/" /usr/local/etc/php/php.ini-development
@@ -93,24 +83,33 @@ RUN touch /var/log/msmtp.log
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install vim subversion git -y
 
-# Replace nginx default conf because it conflicts with woo.conf
-RUN mv /etc/nginx/sites-enabled/woo.conf /etc/nginx/sites-enabled/default
-
 # Install composer
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
 RUN php -r "if (hash_file('sha384', 'composer-setup.php') === 'c5b9b6d368201a9db6f74e2611495f369991b72d9c8cbd3ffbc63edff210eb73d46ffbfce88669ad33695ef77dc76976') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
 RUN php composer-setup.php --filename=composer --install-dir=/usr/bin
 RUN php -r "unlink('composer-setup.php');"
 
-# Copy config scripts
-COPY wp-config.php /usr/src/wp-config.php
-COPY server-start.sh /usr/src/server-start.sh
+# Possibly insecure?
+RUN apt-get install nodejs -y
+RUN curl -L https://www.npmjs.com/install.sh | sh
 
 # Create content directories
-RUN mkdir /usr/src/public_html/wp-content/
-RUN mkdir /usr/src/public_html/wordpress
+RUN mkdir -p /usr/src/public_html/wp-content/
+RUN mkdir -p /usr/src/public_html/wordpress
+RUN chown -R www-data /usr/src/public_html
 
-# Possibly insecure?
-RUN curl -L https://www.npmjs.com/install.sh | sh
+# Install and configure SSL
+COPY woo.ssl.conf /var/woo.ssl.conf
+RUN cd ~ && openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout woo.key -out woo.crt -config /var/woo.ssl.conf
+RUN cp ~/woo.crt /etc/ssl/certs/woo.crt
+RUN cp ~/woo.key /etc/ssl/private/woo.key
+
+# Copy configs. This should be towards the end so that we don't need to build entire image if we change configs.
+COPY nginx.conf /etc/nginx/sites-enabled/default
+COPY php-fpm.conf /usr/local/etc/php-fpm.d/zz-www.conf
+COPY wp-config.php /usr/src/wp-config.php
+COPY server-start.sh /usr/src/server-start.sh
+COPY wp-cli.yml /usr/src/public_html/wp-cli.yml
+COPY smtp.conf /etc/msmtprc
 
 WORKDIR /usr/src/public_html/wp-content/plugins/woocommerce
