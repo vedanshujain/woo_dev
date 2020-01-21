@@ -96,6 +96,21 @@ RUN apt-get install vim subversion git -y
 # Replace nginx default conf because it conflicts with woo.conf
 RUN mv /etc/nginx/sites-enabled/woo.conf /etc/nginx/sites-enabled/default
 
+# Install composer
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+RUN php -r "if (hash_file('sha384', 'composer-setup.php') === 'c5b9b6d368201a9db6f74e2611495f369991b72d9c8cbd3ffbc63edff210eb73d46ffbfce88669ad33695ef77dc76976') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+RUN php composer-setup.php --filename=composer --install-dir=/usr/bin
+RUN php -r "unlink('composer-setup.php');"
+
+# Copy config scripts
+COPY wp-config.php /usr/src/wp-config.php
+COPY server-start.sh /usr/src/server-start.sh
+
+# Create content directories
 RUN mkdir /usr/src/public_html/wp-content/
 RUN mkdir /usr/src/public_html/wordpress
-WORKDIR /usr/src/public_html
+
+# Possibly insecure?
+RUN curl -L https://www.npmjs.com/install.sh | sh
+
+WORKDIR /usr/src/public_html/wp-content/plugins/woocommerce
