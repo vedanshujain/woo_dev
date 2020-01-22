@@ -16,4 +16,4 @@ else
     echo "Found WooCommerce directory in current folder. Skipping download.\n"
 fi
 
-docker-compose up --build
+docker-compose up -d --build && docker-compose exec w.test nginx -s reload
