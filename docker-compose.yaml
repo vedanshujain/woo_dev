@@ -15,10 +15,27 @@ services:
     build:
       context: app
       dockerfile: server.Dockerfile
+      target: main_server
     ports:
       - "80:80"
       - "443:443"
       - "1080:1080"
+    command: >
+      bash -c "sh /usr/src/server-start.sh"
+    volumes:
+      - "./WordPress:/usr/src/public_html/wordpress"
+      - "./plugins:/usr/src/public_html/wp-content/plugins"
+      - "./themes:/usr/src/public_html/wp-content/themes"
+
+  d.w.test:
+    depends_on:
+      - w.test
+    build:
+      context: app
+      dockerfile: server.Dockerfile
+      target: debug_server
+    ports:
+      - "1081:1080"
     command: >
       bash -c "sh /usr/src/server-start.sh"
     volumes:

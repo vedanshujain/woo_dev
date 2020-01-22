@@ -1,4 +1,4 @@
-FROM php:7.2-fpm
+FROM php:7.2-fpm as base_server
 
 # ----- Start section copied from https://github.com/docker-library/wordpress/blob/master/php7.2/fpm/Dockerfile ----- #
 
@@ -104,6 +104,9 @@ RUN cd ~ && openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout woo.key 
 RUN cp ~/woo.crt /etc/ssl/certs/woo.crt
 RUN cp ~/woo.key /etc/ssl/private/woo.key
 
+# -------------------------------------------------------------------------- #
+FROM base_server as main_server
+
 # Copy configs. This should be towards the end so that we don't need to build entire image if we change configs.
 COPY nginx.conf /etc/nginx/sites-enabled/default
 COPY php-fpm.conf /usr/local/etc/php-fpm.d/zz-www.conf
@@ -111,5 +114,33 @@ COPY wp-config.php /usr/src/wp-config.php
 COPY server-start.sh /usr/src/server-start.sh
 COPY wp-cli.yml /usr/src/public_html/wp-cli.yml
 COPY smtp.conf /etc/msmtprc
+WORKDIR /usr/src/public_html/wp-content/plugins/woocommerce
+
+# -------------------------------------------------------------------------- #
+
+
+# -------------------------------------------------------------------------- #
+FROM base_server as debug_server
+
+RUN echo "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20170718/xdebug.so" >> /usr/local/etc/php/php.ini
+RUN pecl install xdebug; \
+    docker-php-ext-enable xdebug; \
+    echo "error_reporting = E_ALL" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+    echo "display_startup_errors = On" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+    echo "display_errors = On" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+    echo "xdebug.remote_enable=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini;
+
+# Copy configs. This should be towards the end so that we don't need to build entire image if we change configs.
+COPY debug-server/nginx.conf /etc/nginx/sites-enabled/default
+COPY php-fpm.conf /usr/local/etc/php-fpm.d/zz-www.conf
+COPY wp-config.php /usr/src/wp-config.php
+COPY server-start.sh /usr/src/server-start.sh
+COPY wp-cli.yml /usr/src/public_html/wp-cli.yml
+COPY smtp.conf /etc/msmtprc
+EXPOSE 443
+WORKDIR /usr/src/public_html/wp-content/plugins/woocommerce
+
+# -------------------------------------------------------------------------- #
+
 
 WORKDIR /usr/src/public_html/wp-content/plugins/woocommerce
