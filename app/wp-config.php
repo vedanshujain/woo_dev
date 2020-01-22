@@ -82,6 +82,10 @@
 	/* WP Content folder path */
 	define ('WP_CONTENT_DIR', '/usr/src/public_html/wp-content');
 
+	/** Handle multi domain into single instance of wordpress installation*/
+	define('WP_SITEURL', 'http://' . $_SERVER['HTTP_HOST']);
+	define('WP_HOME', 'http://' . $_SERVER['HTTP_HOST']);
+
 	/* That's all, stop editing! Happy publishing. */
 
 	/** Absolute path to the WordPress directory. */
