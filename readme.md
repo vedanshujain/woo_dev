@@ -15,8 +15,8 @@ Exposes two sites - `w.test` and `d.w.test` connected to same database. `w.test`
     127.0.0.1	d.w.test
     ```
 1. Visit `https://w.test`, accept security exception and complete the WordPress setup.
-1. Visit
-1. (Optional) Debug server will connect on port 9001 with server name , configure your IDE to listen to this port with server name `Woo-Test`.
+1. Visit `https://d.w.test` and accept security exception.
+1. (Optional) Debug server will connect on port 9001 with server name `Woo-Test`, configure your IDE to listen to this port.
 1. (Optional) Replace `host.docker.internal` with your local IP address in `./docker-compose.yml` if you have configured Docker to run on a custom network. You should not need to do this on OSX.
 
 #### Commands
