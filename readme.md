@@ -40,3 +40,7 @@ Root directory `woo_dev` will contain:
 **Note: For build files and dependencies, you can directly run commands like `composer install` or `npm install` from host after `cd`'ing into directory. You can also open a shell inside docker to run these, but its not required.**
 
 1. `themes` - Theme directory. This will be empty, so you would have to add a theme after fresh install. Mounted to `/usr/src/public_html/wp-content/themes` inside docker containers.
+
+#### Links
+
+Mailcatcher is at `127.0.0.1:1080` from main server and `127.0.0.1:1081` from debug server. All sent mails to any address will end up here.
