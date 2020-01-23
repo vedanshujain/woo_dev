@@ -42,3 +42,6 @@ services:
       - "./WordPress:/usr/src/public_html/wordpress"
       - "./plugins:/usr/src/public_html/wp-content/plugins"
       - "./themes:/usr/src/public_html/wp-content/themes"
+    environment:
+        - XDEBUG_CONFIG=remote_host=host.docker.internal remote_port=9001
+        - PHP_IDE_CONFIG=serverName=Woo-Test
