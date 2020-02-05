@@ -93,6 +93,9 @@ RUN php -r "unlink('composer-setup.php');"
 RUN apt-get install nodejs -y
 RUN curl -L https://www.npmjs.com/install.sh | sh
 
+# Install DB client
+RUN apt-get update && apt-get install -y mariadb-client
+
 # Create content directories
 RUN mkdir -p /usr/src/public_html/wp-content/
 RUN mkdir -p /usr/src/public_html/wordpress
