@@ -78,6 +78,9 @@
 	 * @link https://wordpress.org/support/article/debugging-in-wordpress/
 	 */
 	define( 'WP_DEBUG', true );
+	define( 'WP_DEBUG_LOG', true );
+	define( 'WP_DEBUG_DISPLAY', true );
+	define( 'SAVEQUERIES', true );
 
 	/* WP Content folder path */
 	define ('WP_CONTENT_DIR', '/usr/src/public_html/wp-content');
