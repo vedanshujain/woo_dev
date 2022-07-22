@@ -88,10 +88,6 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
 RUN php composer-setup.php --filename=composer --install-dir=/usr/bin
 RUN php -r "unlink('composer-setup.php');"
 
-# Possibly insecure?
-RUN apt-get install nodejs -y
-RUN curl -L https://www.npmjs.com/install.sh | sh
-
 # Install DB client
 RUN apt-get update && apt-get install -y mariadb-client
 
@@ -126,15 +122,18 @@ FROM base_server as debug_server
 
 RUN echo "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20170718/xdebug.so" >> /usr/local/etc/php/php.ini
 RUN pecl install xdebug; \
-    docker-php-ext-enable xdebug; \
-    echo "error_reporting = E_ALL" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+    docker-php-ext-enable xdebug;
+
+RUN echo "error_reporting = E_ALL" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
     echo "display_startup_errors = On" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
     echo "display_errors = On" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
     echo "memory_limit=-1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
     echo "xdebug.remote_enable=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
     echo "xdebug.profiler_enable=0;" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
     echo "xdebug.profiler_enable_trigger=1;" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
-    echo 'xdebug.profiler_output_dir=/usr/src/profiling_data' >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini;
+    echo 'xdebug.profiler_output_dir=/usr/src/profiling_data' >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+    echo 'xdebug.mode=debug' >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \
+    echo 'xdebug.start_with_request=yes' >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini;
 
 # Copy configs. This should be towards the end so that we don't need to build entire image if we change configs.
 COPY debug-server/nginx.conf /etc/nginx/sites-enabled/default
