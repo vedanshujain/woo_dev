@@ -36,8 +36,7 @@
 
 	/** The Database Collate type. Don't change this if in doubt. */
 	define( 'DB_COLLATE', '' );
-
-	/**#@+
+/**#@+
 	 * Authentication Unique Keys and Salts.
 	 *
 	 * Change these to different unique phrases!
@@ -63,7 +62,7 @@
 	 * You can have multiple installations in one database if you give each
 	 * a unique prefix. Only numbers, letters, and underscores please!
 	 */
-	$table_prefix = 'wc_';
+	$table_prefix = 'wp_';
 
 	/**
 	 * For developers: WordPress debugging mode.
@@ -80,7 +79,8 @@
 	define( 'WP_DEBUG', true );
 	define( 'WP_DEBUG_LOG', true );
 	define( 'WP_DEBUG_DISPLAY', true );
-	define( 'SAVEQUERIES', true );
+	define( 'SAVEQUERIES', false );
+	define( 'FS_METHOD', 'direct' );
 
 	/* WP Content folder path */
 	define ('WP_CONTENT_DIR', '/usr/src/public_html/wp-content');

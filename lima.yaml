@@ -13,7 +13,8 @@ images:
 cpus: 4
 memory: 8GiB
 disk: 50GiB
-useHostResolver: false
+hostResolver:
+  enabled: false
 dns:
   - 8.8.8.8
   - 4.4.4.4

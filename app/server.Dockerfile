@@ -1,4 +1,4 @@
-FROM php:7.2-fpm as base_server
+FROM php:7.4-fpm as base_server
 
 # ----- Start section copied from https://github.com/docker-library/wordpress/blob/master/php7.2/fpm/Dockerfile ----- #
 
@@ -11,9 +11,10 @@ RUN set -ex; \
 	apt-get install -y --no-install-recommends \
 		libjpeg-dev \
 		libpng-dev \
+		libzip-dev\
 	; \
 	\
-	docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr; \
+	docker-php-ext-configure gd; \
 	docker-php-ext-install gd mysqli opcache zip; \
 	\
 # reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
@@ -72,7 +73,7 @@ RUN apt-get update && apt-get upgrade -y
 RUN cat /etc/apt/sources.list
 RUN apt-get install unzip -y
 RUN apt-get install unzip build-essential libsqlite3-dev ruby-dev -y --fix-missing
-RUN gem install mailcatcher --no-ri --no-rdoc
+RUN gem install mailcatcher --no-document
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -yq install msmtp
 RUN sed -i -e "s|;sendmail_path =|sendmail_path = /usr/bin/msmtp -C /etc/msmtprc -t |" /usr/local/etc/php/php.ini-development
 RUN sed -i -e "s/smtp_port = 25/smtp_port = 1025/" /usr/local/etc/php/php.ini-development
@@ -121,7 +122,7 @@ WORKDIR /usr/src/public_html/wp-content/plugins/woocommerce
 FROM base_server as debug_server
 
 RUN echo "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20170718/xdebug.so" >> /usr/local/etc/php/php.ini
-RUN pecl install xdebug; \
+RUN pecl install xdebug-3.1.5; \
     docker-php-ext-enable xdebug;
 
 RUN echo "error_reporting = E_ALL" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini; \

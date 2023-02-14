@@ -6,7 +6,7 @@ services:
     build:
       context: db
       dockerfile: mysql.Dockerfile
-    command: --default-authentication-plugin=mysql_native_password --long_query_time=0.1 --slow_query_log=1 --log-short-format --slow_query_log_file=/var/log/mysql/slow_query.log --general_log=on --general_log_file=/var/log/mysql/query.log
+    command: mysqld --default-authentication-plugin=mysql_native_password --long_query_time=0.1 --slow_query_log=1 --log-short-format --slow_query_log_file=/var/log/mysql/slow_query.log --general_log=on --general_log_file=/var/log/mysql/query.log
     ports:
       - "3310:3306"
 
